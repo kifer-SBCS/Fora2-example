@@ -1,0 +1,161 @@
+
+/*
+   // describes Companies in WOCO
+   company(Id: symbol, Name: symbol, Shares: number, Shareprice: number)
+   Key: Id
+
+   //shares owned by a company
+   companyShares(CompanyId: symbol, CompanyOwned: symbol, shares: number)
+   Key: CompanyId, CompanyOwned
+
+   // describes Company's Board
+   board(CompanyId: symbol, PersonId: symbol)
+   Key: CompanyId, PersonId
+
+   // Companies and relevant industries
+   industry(CompanyId: symbol, IndustryName: symbol)
+   Key: Id, IndustryName
+
+   // People involved in WOCO
+   person(Id: symbol, Name: symbol)
+   Key: Id
+
+   //shares owned by a person
+   personShares(PersonId: symbol, CompanyOwned: symbol, shares: number)
+   Key: PersonId, CompanyOwned
+*/
+
+// -----------------------------------------------------------------------------
+//Person and Person details
+person(1, 'John Smyth').
+personShares(1, QUE, 20000).
+personShares(1, RHC, 20000).
+personShares(1, Tfos, 800000).
+
+person(2, 'Bill Doe').
+personShares(2, Tfos, 30000).
+personShares(2, Elpa, 100000).
+
+person(3, 'Anne Smyle').
+personShares(3, RHC, 3000).
+personShares(3, Tfos, 40000).
+personShares(3, Alf, 500000).
+
+person(4, 'Bill Seth').
+personShares(4, Gnow, 40000).
+personShares(4, Elgog, 20000).
+
+person(5, 'Steve Lamp').
+personShares(5, Elpa, 90000).
+personShares(5, QUE, 50000).
+personShares(5, Ohay, 50000).
+personShares(5, RHC, 70000).
+
+person(6, 'May Serge').
+personShares(6, Elpa, -10000).
+personShares(6, Ydex, -40000).
+personShares(6, Alf, 500000).
+personShares(6, RHC, 40000).
+
+person(7, 'Bill Public').
+personShares(7, Gnow, 80000).
+personShares(7, Elgog, 30000).
+personShares(7, QUE, 30000).
+personShares(7, Tfos, 300000).
+personShares(7, RHC, -9000).
+
+person(8, 'Muck Lain').
+personShares(8, RHC, 60000).
+personShares(8, Ohay, -40000).
+personShares(8, Ydex, -80000).
+personShares(8, Elpa, 30000).
+
+
+//------------------------------------------------------------------------------
+
+company(QUE, QUE, 150000, 30).
+companyShares(QUE, RHC, 10000).
+companyShares(QUE, Elgog, 20000).
+companyShares(QUE, Elpa, 30000).
+board(QUE, {1, 2, 3}).
+industry(QUE, {Software, Accounting}).
+
+company(RHC, RHC, 250000, 20).
+board(RHC, {2, 4, 5}).
+industry(RHC, Accounting).
+
+company(Alf, Alf, 10000000, 700).
+companyShares(Alf, Ydex, -100000).
+companyShares(Alf, Elgog, 400000).
+companyShares(Alf, Elpa, 100000).
+board(Alf, {6, 7, 2}).
+industry(Alf, {Software, Automotive}).
+
+company(Elgog, Elgog, 1000000, 400).
+companyShares(Elgog, Ohay, 5000).
+board(Elgog, {5, 6, 7}).
+industry(Elgog, {Software, Search}).
+
+company(Tfos, Tfos, 150000, 300).
+companyShares(Tfos, Ohay, 30000).
+companyShares(Tfos, Gnow, 50000).
+companyShares(Tfos, QUE, 200000).
+board(Tfos, {4, 5, 3}).
+industry(Tfos, {Software, Hardware}).
+
+company(Ohay, Ohay, 180000, 50).
+board(Ohay, {3, 4, 8}).
+industry(Ohay, Search).
+
+company(Gnow, Gnow, 150000, 300).
+board(Gnow, {4, 1, 3}).
+industry(Gnow, Search).
+
+company(Elpa, Elpa, 9000000, 300).
+companyShares(Elpa, Tfos, 20000).
+companyShares(Elpa, Elgog, 30000).
+board(Elpa, {4, 1, 8}).
+industry(Elpa, {Software, Hardware}).
+
+company(Ydex, Ydex, 5000000, 100).
+board(QUE, {6, 1, 8}).
+industry(QUE, {Software, Search}).
+
+Q1(?CompanyName) :-
+        company(?Id,?CompanyName,?,?),
+        board(?Id, ?PersonId),
+        personShares(?PersonId, ?Id, ?PersonShares),
+        ?PersonShares > 0.
+
+avgNumberOfEndorsements(?Name, ?Networth) :-
+        person(?Id, ?Name),
+        sum{?Worth |
+            personShares(?Id,?CompanyId,?Shares),
+            company(?CompanyId, ?, ?, ?SharePrice),
+            ?Shares > 0,
+            ?Worth \is ?Shares*?SharePrice}
+        = ?Networth.
+
+Q2(?Name, ?Networth) :-
+        avgNumberOfEndorsements(?Name, ?Networth).
+
+maxNumberOfShares(?CompanyId, ?TopBoardMember) :-
+        company(?CompanyId, ?, ?, ?),
+        board(?CompanyId, ?PersonId),
+        person(?PersonId, ?TopBoardMember),
+        max{?Shares |
+            personShares(?PersonId, ?CompanyId, ?Shares),
+            ?Shares > 0}
+        = ?.
+
+Q3(?CompanyId, ?TopBoardMember) :-
+        maxNumberOfShares(?CompanyId, ?TopBoardMember).
+
+?- writeln('--- Query 1: Companies that are partially owned by their board members ---')@\io,
+        Q2(?Name, ?Networth).
+
+?- writeln('--- Query 2: NetWorth of every person in database ---')@\io,
+        Q2(?Name, ?Networth).
+
+?- writeln('--- Query 3: NetWorth of every person in database ---')@\io,
+        Q3(?CompanyId, ?TopBoardMember).
