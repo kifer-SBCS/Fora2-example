@@ -4,10 +4,6 @@
    company(Id: symbol, Name: symbol, Shares: number, Shareprice: number)
    Key: Id
 
-   //shares owned by a company
-   companyShares(CompanyId: symbol, CompanyOwned: symbol, shares: number)
-   Key: CompanyId, CompanyOwned
-
    // describes Company's Board
    board(CompanyId: symbol, PersonId: symbol)
    Key: CompanyId, PersonId
@@ -20,63 +16,63 @@
    person(Id: symbol, Name: symbol)
    Key: Id
 
-   //shares owned by a person
-   personShares(PersonId: symbol, CompanyOwned: symbol, shares: number)
-   Key: PersonId, CompanyOwned
+   //shares owned by a person or company
+   shareHolders(Id: symbol, CompanyOwned: symbol, shares: number)
+   Key: Id, CompanyOwned
 */
 
 // -----------------------------------------------------------------------------
 //Person and Person details
 person(1, 'John Smyth').
-personShares(1, QUE, 20000).
-personShares(1, RHC, 20000).
-personShares(1, Tfos, 800000).
+shareHolders(1, QUE, 20000).
+shareHolders(1, RHC, 20000).
+shareHolders(1, Tfos, 800000).
 
 person(2, 'Bill Doe').
-personShares(2, Tfos, 30000).
-personShares(2, Elpa, 100000).
+shareHolders(2, Tfos, 30000).
+shareHolders(2, Elpa, 100000).
 
 person(3, 'Anne Smyle').
-personShares(3, RHC, 3000).
-personShares(3, Tfos, 40000).
-personShares(3, Alf, 500000).
+shareHolders(3, RHC, 30000).
+shareHolders(3, Tfos, 40000).
+shareHolders(3, Alf, 500000).
 
 person(4, 'Bill Seth').
-personShares(4, Gnow, 40000).
-personShares(4, Elgog, 20000).
+shareHolders(4, Gnow, 40000).
+shareHolders(4, Elgog, 20000).
 
 person(5, 'Steve Lamp').
-personShares(5, Elpa, 90000).
-personShares(5, QUE, 50000).
-personShares(5, Ohay, 50000).
-personShares(5, RHC, 70000).
+shareHolders(5, Elpa, 90000).
+shareHolders(5, QUE, 50000).
+shareHolders(5, Ohay, 50000).
+shareHolders(5, RHC, 70000).
 
 person(6, 'May Serge').
-personShares(6, Elpa, -10000).
-personShares(6, Ydex, -40000).
-personShares(6, Alf, 500000).
-personShares(6, RHC, 40000).
+shareHolders(6, Elpa, -10000).
+shareHolders(6, Ydex, -40000).
+shareHolders(6, Alf, 500000).
+shareHolders(6, RHC, 40000).
 
 person(7, 'Bill Public').
-personShares(7, Gnow, 80000).
-personShares(7, Elgog, 30000).
-personShares(7, QUE, 30000).
-personShares(7, Tfos, 300000).
-personShares(7, RHC, -9000).
+shareHolders(7, Gnow, 80000).
+shareHolders(7, Elgog, 30000).
+shareHolders(7, QUE, 30000).
+shareHolders(7, Tfos, 300000).
+shareHolders(7, RHC, -9000).
 
 person(8, 'Muck Lain').
-personShares(8, RHC, 60000).
-personShares(8, Ohay, -40000).
-personShares(8, Ydex, -80000).
-personShares(8, Elpa, 30000).
+shareHolders(8, RHC, 60000).
+shareHolders(8, Ohay, -40000).
+shareHolders(8, Ydex, -80000).
+shareHolders(8, Elpa, 30000).
 
 
 //------------------------------------------------------------------------------
 
 company(QUE, QUE, 150000, 30).
-companyShares(QUE, RHC, 10000).
-companyShares(QUE, Elgog, 20000).
-companyShares(QUE, Elpa, 30000).
+shareHolders(QUE, RHC, 10000).
+shareHolders(QUE, Elgog, 20000).
+shareHolders(QUE, Elpa, 30000).
 board(QUE, {1, 2, 3}).
 industry(QUE, {Software, Accounting}).
 
@@ -85,21 +81,21 @@ board(RHC, {2, 4, 5}).
 industry(RHC, Accounting).
 
 company(Alf, Alf, 10000000, 700).
-companyShares(Alf, Ydex, -100000).
-companyShares(Alf, Elgog, 400000).
-companyShares(Alf, Elpa, 100000).
+shareHolders(Alf, Ydex, -100000).
+shareHolders(Alf, Elgog, 400000).
+shareHolders(Alf, Elpa, 100000).
 board(Alf, {6, 7, 2}).
 industry(Alf, {Software, Automotive}).
 
 company(Elgog, Elgog, 1000000, 400).
-companyShares(Elgog, Ohay, 5000).
+shareHolders(Elgog, Ohay, 5000).
 board(Elgog, {5, 6, 7}).
 industry(Elgog, {Software, Search}).
 
-company(Tfos, Tfos, 150000, 300).
-companyShares(Tfos, Ohay, 30000).
-companyShares(Tfos, Gnow, 50000).
-companyShares(Tfos, QUE, 200000).
+company(Tfos, Tfos, 10000000, 300).
+shareHolders(Tfos, Ohay, 30000).
+shareHolders(Tfos, Gnow, 50000).
+shareHolders(Tfos, QUE, 200000).
 board(Tfos, {4, 5, 3}).
 industry(Tfos, {Software, Hardware}).
 
@@ -112,8 +108,8 @@ board(Gnow, {4, 1, 3}).
 industry(Gnow, Search).
 
 company(Elpa, Elpa, 9000000, 300).
-companyShares(Elpa, Tfos, 20000).
-companyShares(Elpa, Elgog, 30000).
+shareHolders(Elpa, Tfos, 20000).
+shareHolders(Elpa, Elgog, 30000).
 board(Elpa, {4, 1, 8}).
 industry(Elpa, {Software, Hardware}).
 
@@ -124,38 +120,63 @@ industry(QUE, {Software, Search}).
 Q1(?CompanyName) :-
         company(?Id,?CompanyName,?,?),
         board(?Id, ?PersonId),
-        personShares(?PersonId, ?Id, ?PersonShares),
+        shareHolders(?PersonId, ?Id, ?PersonShares),
         ?PersonShares > 0.
 
-avgNumberOfEndorsements(?Name, ?Networth) :-
+totalNetWorth(?Name, ?Networth) :-
         person(?Id, ?Name),
         sum{?Worth |
-            personShares(?Id,?CompanyId,?Shares),
+            shareHolders(?Id,?CompanyId,?Shares),
             company(?CompanyId, ?, ?, ?SharePrice),
             ?Shares > 0,
             ?Worth \is ?Shares*?SharePrice}
         = ?Networth.
 
 Q2(?Name, ?Networth) :-
-        avgNumberOfEndorsements(?Name, ?Networth).
+        totalNetWorth(?Name, ?Networth).
 
 maxNumberOfShares(?CompanyId, ?TopBoardMember) :-
         company(?CompanyId, ?, ?, ?),
         board(?CompanyId, ?PersonId),
         person(?PersonId, ?TopBoardMember),
         max{?Shares |
-            personShares(?PersonId, ?CompanyId, ?Shares),
+            shareHolders(?PersonId, ?CompanyId, ?Shares),
             ?Shares > 0}
         = ?.
 
 Q3(?CompanyId, ?TopBoardMember) :-
         maxNumberOfShares(?CompanyId, ?TopBoardMember).
 
+
+directly_owned(?Id,?Company,?Fraction) :-
+        company(?Company,?,?TotalSharesOfThisCompany,?),
+        shareHolders(?Id,?Company,?NumOfSharesInThisCompany),
+        ?NumOfSharesInThisCompany > 0,
+        ?Fraction \is ?NumOfSharesInThisCompany/?TotalSharesOfThisCompany.
+
+
+indirectly_owned(?Id,?Company,?Fraction) :- directly_owned(?Id,?Company,?Fraction).
+indirectly_owned(?Id,?Company,?Fraction) :-
+        directly_owned(?Id,?CompanyX,?X),
+        indirectly_owned(?CompanyX,?Company,?Y),
+        ?Fraction \is ?X * ?Y.
+
+Q5(?Person,?Company,?Percentage) :-
+		  person(?Id,?Person),
+		  company(?Company,?,?,?),
+		  ?Percentage \is sum{
+		        ?Fraction | indirectly_owned(?Id,?Company,?Fraction)
+		  } * 100,
+		  ?Percentage > 10.
+
 ?- writeln('--- Query 1: Companies that are partially owned by their board members ---')@\io,
-        Q2(?Name, ?Networth).
+        Q1(?Companies).
 
 ?- writeln('--- Query 2: NetWorth of every person in database ---')@\io,
         Q2(?Name, ?Networth).
 
-?- writeln('--- Query 3: NetWorth of every person in database ---')@\io,
+?- writeln('--- Query 3: TopBoardMember(Board member with maximum number of shares) for each of the companies in database ---')@\io,
         Q3(?CompanyId, ?TopBoardMember).
+
+?- writeln('--- Query 5: Control on companies each person in database holds ---')@\io,
+        Q5(?Person,?Company,?Percentage).
