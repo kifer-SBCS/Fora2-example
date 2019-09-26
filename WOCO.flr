@@ -1,27 +1,30 @@
 
 /*
-   // describes Companies in WOCO
+    Web of Company Ownership (WOCO)
+
+
+   // describes details of all companies in WOCO
    company(Id: symbol, Name: symbol, Shares: number, Shareprice: number)
    Key: Id
 
-   // describes Company's Board
+   // describes a company's board where companyId is identifier of company
    board(CompanyId: symbol, PersonId: symbol)
    Key: CompanyId, PersonId
 
-   // Companies and relevant industries
+   // Companies and the industries they belong to. One company can belong to multiple industries.
    industry(CompanyId: symbol, IndustryName: symbol)
    Key: Id, IndustryName
 
    // People involved in WOCO
-   person(Id: symbol, Name: symbol)
+   person(PersonId: symbol, PersonName: symbol)
    Key: Id
 
-   //shares owned by a person or company
+   //shares owned by a person or company.
    shareHolders(Id: symbol, CompanyOwned: symbol, shares: number)
    Key: Id, CompanyOwned
 */
 
-// -----------------------------------------------------------------------------
+// -----------Database of people involved in WOCO and shares held by them-----
 //Person and Person details
 person(1, 'John Smyth').
 shareHolders(1, QUE, 20000).
@@ -67,7 +70,7 @@ shareHolders(8, Ydex, -80000).
 shareHolders(8, Elpa, 30000).
 
 
-//------------------------------------------------------------------------------
+//-------------Details of all companies involved in WOCO---------------------
 
 company(QUE, QUE, 150000, 30).
 shareHolders(QUE, RHC, 10000).
@@ -117,36 +120,55 @@ company(Ydex, Ydex, 5000000, 100).
 board(QUE, {6, 1, 8}).
 industry(QUE, {Software, Search}).
 
+// Companies where one or more boardmember(s) of the company own(s) the company partially.
 Q1(?CompanyName) :-
         company(?Id,?CompanyName,?,?),
-        board(?Id, ?PersonId),
-        shareHolders(?PersonId, ?Id, ?PersonShares),
+        board(?Id,?PersonId),
+        shareHolders(?PersonId,?Id,?PersonShares),
         ?PersonShares > 0.
 
-totalNetWorth(?Name, ?Networth) :-
-        person(?Id, ?Name),
+
+//Total networth of every person in WOCO database
+
+Q2(?Name, ?Networth) :-
+        totalNetWorth(?Name,?Networth).
+
+// Sum of worth held by each person in databse
+totalNetWorth(?Name,?Networth) :-
+        person(?Id,?Name),
         sum{?Worth |
             shareHolders(?Id,?CompanyId,?Shares),
-            company(?CompanyId, ?, ?, ?SharePrice),
+            company(?CompanyId,?,?,?SharePrice),
             ?Shares > 0,
             ?Worth \is ?Shares*?SharePrice}
         = ?Networth.
 
-Q2(?Name, ?Networth) :-
-        totalNetWorth(?Name, ?Networth).
+//Board member of the company with maximum number of shares in the company
 
-maxNumberOfShares(?CompanyId, ?TopBoardMember) :-
-        company(?CompanyId, ?, ?, ?),
-        board(?CompanyId, ?PersonId),
-        person(?PersonId, ?TopBoardMember),
+Q3(?CompanyId,?TopBoardMember) :-
+        maxNumberOfShares(?CompanyId,?TopBoardMember).
+
+maxNumberOfShares(?CompanyId,?TopBoardMember) :-
+        company(?CompanyId,?,?,?),
+        board(?CompanyId,?PersonId),
+        person(?PersonId,?TopBoardMember),
         max{?Shares |
-            shareHolders(?PersonId, ?CompanyId, ?Shares),
+            shareHolders(?PersonId,?CompanyId,?Shares),
             ?Shares > 0}
         = ?.
 
-Q3(?CompanyId, ?TopBoardMember) :-
-        maxNumberOfShares(?CompanyId, ?TopBoardMember).
+// Pair of companies (Company1, Company2) where Company1 dominates Company2
 
+Q4(?Company1, ?Company2) :-
+        company(?Company1,?,?,?),
+        company(?Company2,?,?,?),
+        ?Company1 != ?Company2,
+        industry(?Company1,?Industry),
+        industry(?Company2,?Industry),
+        forall(?BoardMemberInC2,?NumOfSharesByBoardMember2,?CompanyX)^(board(?Company2,?BoardMemberInC2),shareHolders(?BoardMemberInC2,?CompanyX,?NumOfSharesByBoardMember2)
+            ~~> exists(?BoardMemberInC1,?NumOfSharesByBoardMember1)^(board(?Company1,?BoardMemberInC1),shareHolders(?BoardMemberInC1,?CompanyX,?NumOfSharesByBoardMember1),?NumOfSharesByBoardMember1 >= ?NumOfSharesByBoardMember2)).
+
+//Companies owned by a person directly or indirectly if control > 10%
 
 directly_owned(?Id,?Company,?Fraction) :-
         company(?Company,?,?TotalSharesOfThisCompany,?),
@@ -157,9 +179,9 @@ directly_owned(?Id,?Company,?Fraction) :-
 
 indirectly_owned(?Id,?Company,?Fraction) :- directly_owned(?Id,?Company,?Fraction).
 indirectly_owned(?Id,?Company,?Fraction) :-
-        directly_owned(?Id,?CompanyX,?X),
-        indirectly_owned(?CompanyX,?Company,?Y),
-        ?Fraction \is ?X * ?Y.
+        directly_owned(?Id,?CompanyX,?FractionDirectlyOwned),
+        indirectly_owned(?CompanyX,?Company,?FractionIndirectlyOwned),
+        ?Fraction \is ?FractionDirectlyOwned * ?FractionIndirectlyOwned.
 
 Q5(?Person,?Company,?Percentage) :-
 		  person(?Id,?Person),
@@ -169,14 +191,17 @@ Q5(?Person,?Company,?Percentage) :-
 		  } * 100,
 		  ?Percentage > 10.
 
-?- writeln('--- Query 1: Companies that are partially owned by their board members ---')@\io,
-        Q1(?Companies).
+?- writeln('--- Query 1: All companies that are (partially) owned by one of their board members ---')@\io,
+        Q1(?Company).
 
-?- writeln('--- Query 2: NetWorth of every person in database ---')@\io,
-        Q2(?Name, ?Networth).
+?- writeln('--- Query 2: Total networth of every person in WOCO database ---')@\io,
+        Q2(?Person, ?Networth).
 
 ?- writeln('--- Query 3: TopBoardMember(Board member with maximum number of shares) for each of the companies in database ---')@\io,
-        Q3(?CompanyId, ?TopBoardMember).
+        Q3(?Company, ?TopBoardMember).
 
-?- writeln('--- Query 5: Control on companies each person in database holds ---')@\io,
+?- writeln('--- Query 4: Pair of (Company1, Company2) : Board of company1 dominates board of company2 ---')@\io,
+        Q4(?Company1,?Company2).
+
+?- writeln('--- Query 5: Companies controlled directly/indirectly by each person in database if control>10% ---')@\io,
         Q5(?Person,?Company,?Percentage).
