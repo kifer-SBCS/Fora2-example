@@ -2,7 +2,6 @@
 /*
     Web of Company Ownership (WOCO)
 
-
    // describes details of all companies in WOCO
    company(Id: symbol, Name: symbol, Shares: number, Shareprice: number)
    Key: Id
@@ -158,7 +157,6 @@ maxNumberOfShares(?CompanyId,?TopBoardMember) :-
         = ?.
 
 // Pair of companies (Company1, Company2) where Company1 dominates Company2
-
 Q4(?Company1, ?Company2) :-
         company(?Company1,?,?,?),
         company(?Company2,?,?,?),
@@ -169,7 +167,6 @@ Q4(?Company1, ?Company2) :-
             ~~> exists(?BoardMemberInC1,?NumOfSharesByBoardMember1)^(board(?Company1,?BoardMemberInC1),shareHolders(?BoardMemberInC1,?CompanyX,?NumOfSharesByBoardMember1),?NumOfSharesByBoardMember1 >= ?NumOfSharesByBoardMember2)).
 
 //Companies owned by a person directly or indirectly if control > 10%
-
 directly_owned(?Id,?Company,?Fraction) :-
         company(?Company,?,?TotalSharesOfThisCompany,?),
         shareHolders(?Id,?Company,?NumOfSharesInThisCompany),
